@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tim Teknis Diskominfo - Tugas Laporan</title>
+  <link rel="icon" type="image/png" href="/images/logo_gowa.png" />
+  <link rel="stylesheet" href="/laporan/styles.css" />
+</head>
+<body>
+  <div class="app-shell admin-shell">
+    <!-- sidebar staf, lebih simpel dari admin.html -- cuma 1 menu doang -->
+    <aside class="sidebar" aria-label="Navigasi staf">
+      <a class="brand" href="/staf">
+        <span class="brand-mark">
+          <img src="/images/logo_gowa.png" alt="Logo Diskominfo-SP Gowa" />
+        </span>
+        <span>
+          <strong>Tim Teknis Diskominfo</strong>
+          <small>Penanganan laporan gangguan TIK</small>
+        </span>
+      </a>
+
+      <nav class="side-nav">
+        <a href="#tugas" class="active">Tugas saya</a>
+      </nav>
+    </aside>
+
+    <main class="workspace admin-workspace">
+      <header class="workspace-header">
+        <div>
+          <p class="eyebrow">Teknis Lapangan</p>
+          <h1>Tugas penanganan Teknis.</h1>
+          <p class="header-copy">Masuk sebagai teknis untuk melihat tiket yang diberikan admin, memberi komentar, mengubah status, dan mengirim foto bukti JPG/PNG.</p>
+        </div>
+        <div class="header-status-group">
+          <div class="header-status">
+            <span class="pulse"></span>
+            <span>Live polling</span>
+            <strong id="clock">--:--</strong>
+          </div>
+          <button id="staffLogout" class="secondary-btn logout-btn" type="button" hidden>Keluar</button>
+        </div>
+      </header>
+
+      <!-- login staf + daftar tugas. #staffLoginSection ke-hide abis login sukses, sama kayak logic admin -->
+      <section id="tugas" class="panel admin-page-panel">
+        <div id="staffLoginSection">
+          <div class="panel-head">
+            <div>
+              <p class="section-label">Login Teknis</p>
+              <h2>Masuk workspace</h2>
+            </div>
+          </div>
+
+          <form id="staffLogin" class="login-panel">
+            <label class="field">
+              <span>Username</span>
+              <input id="staffUsername" placeholder="rifqy atau raffi" autocomplete="username" />
+            </label>
+            <label class="field">
+              <span>Password</span>
+              <input id="staffPassword" type="password" placeholder="Password staf" autocomplete="current-password" />
+            </label>
+            <button class="primary-btn" type="submit">Masuk</button>
+            <p id="staffMsg" class="form-msg"></p>
+          </form>
+        </div>
+
+        <!-- baru keisi abis login, dari loadStaffTasks() di app.js -->
+        <div id="staffPanel" hidden>
+          <div class="panel-head compact">
+            <div>
+              <p class="section-label">Tugas Saya</p>
+              <h3 id="staffName">Daftar laporan</h3>
+            </div>
+            <button id="staffTaskRefresh" class="secondary-btn" type="button">Refresh</button>
+          </div>
+          <div id="staffTaskList" class="admin-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/laporan/app.js"></script>
+</body>
+</html>

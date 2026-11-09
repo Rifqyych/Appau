@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin APPAU - Manajemen Laporan</title>
+  <link rel="icon" type="image/png" href="/images/logo_gowa.png" />
+  <link rel="stylesheet" href="/laporan/styles.css" />
+</head>
+<body>
+  <div class="app-shell admin-shell">
+    <!-- sidebar -- nav-nya scroll-anchor ke #antrean/#analitik/#staf -->
+    <aside class="sidebar" aria-label="Navigasi admin">
+      <a class="brand" href="/admin">
+        <span class="brand-mark">
+          <img src="/images/logo_gowa.png" alt="Logo Diskominfo-SP Gowa" />
+        </span>
+        <span>
+          <strong>APPAU Admin</strong>
+          <small>Manajemen Laporan Gangguan TIK</small>
+        </span>
+      </a>
+
+      <nav class="side-nav">
+        <a href="#antrean" class="active">Antrean Laporan</a>
+        <a href="#analitik">Analitik</a>
+        <a href="#staf">Lapor Teknis</a>
+      </nav>
+    </aside>
+
+    <main class="workspace admin-workspace">
+      <!-- jam #clock diisi app.js, tombol Keluar baru muncul abis login -->
+      <header class="workspace-header">
+        <div>
+          <p class="eyebrow">Admin Dashboard</p>
+          <h1>Manajemen Laporan APPAU.</h1>
+          <p class="header-copy">Login dengan kunci admin untuk melihat laporan, memperbarui status, mengirim WhatsApp, dan menghapus tiket.</p>
+        </div>
+        <div class="header-status-group">
+          <div class="header-status">
+            <span class="pulse"></span>
+            <span>Live Polling</span>
+            <strong id="clock">--:--</strong>
+          </div>
+          <button id="adminLogout" class="secondary-btn logout-btn" type="button" hidden>Keluar</button>
+        </div>
+      </header>
+
+      <!-- angka2 data-stat ini diisi app.js dari /api/board, auto refresh tiap 15 detik -->
+      <section class="metric-grid" aria-label="Ringkasan laporan admin">
+        <article class="metric">
+          <span>Pending</span>
+          <strong data-stat="open">0</strong>
+        </article>
+        <article class="metric">
+          <span>Dalam Pengecekan</span>
+          <strong data-stat="investigating">0</strong>
+        </article>
+        <article class="metric">
+          <span>Diproses</span>
+          <strong data-stat="in_progress">0</strong>
+        </article>
+        <article class="metric">
+          <span>Sisi Pengguna</span>
+          <strong data-stat="user_issue">0</strong>
+        </article>
+        <article class="metric">
+          <span>Selesai</span>
+          <strong data-stat="resolved">0</strong>
+        </article>
+      </section>
+
+      <!-- login admin + antrean laporan. #adminLoginSection ke-hide otomatis abis login berhasil -->
+      <section id="antrean" class="panel admin-page-panel">
+        <div id="adminLoginSection">
+          <div class="panel-head">
+            <div>
+              <p class="section-label">Akses Admin</p>
+              <h2>Masuk Dashboard</h2>
+            </div>
+          </div>
+
+          <form id="adminLogin" class="login-panel">
+            <label class="field">
+              <span>Kunci Admin</span>
+              <input id="adminKey" type="password" placeholder="Masukkan ADMIN_KEY" autocomplete="off" />
+            </label>
+            <button class="primary-btn" type="submit">Masuk</button>
+            <p id="adminMsg" class="form-msg"></p>
+          </form>
+        </div>
+
+        <!-- #adminList baru keisi abis login -->
+        <div id="adminPanel" hidden>
+          <section class="admin-section">
+            <div class="panel-head compact">
+              <div>
+                <p class="section-label">Antrean</p>
+                <h3>Laporan Masuk</h3>
+              </div>
+              <button id="adminRefresh" class="secondary-btn" type="button">Refresh</button>
+            </div>
+            <div id="adminList" class="admin-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- semua angka/grafik disini diisi renderAnalytics() di app.js, dipanggil ulang tiap ganti periode -->
+      <section id="analitik" class="panel admin-page-panel">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Analitik</p>
+            <h2>Laporan Mingguan dan Bulanan</h2>
+          </div>
+          <!-- #monthYearPicker cuma nongol pas mode Bulanan aktif -->
+          <div class="period-controls">
+            <div class="period-toggle" role="group" aria-label="Periode analitik">
+              <button class="secondary-btn active" type="button" data-period="weekly">Mingguan</button>
+              <button class="secondary-btn" type="button" data-period="monthly">Bulanan</button>
+            </div>
+            <div id="monthYearPicker" class="month-year-picker" hidden>
+              <select id="summaryMonth" aria-label="Pilih bulan"></select>
+              <select id="summaryYear" aria-label="Pilih tahun"></select>
+            </div>
+            <span class="period-divider" aria-hidden="true"></span>
+            <button id="analyticsRefresh" class="secondary-btn" type="button">Refresh</button>
+          </div>
+        </div>
+
+        <!-- 4 kartu angka: total, aktif, selesai, rata2 jam -->
+        <div class="analytics-grid">
+          <article class="analytic-card">
+            <span>Total laporan</span>
+            <strong id="summaryTotal">0</strong>
+          </article>
+          <article class="analytic-card">
+            <span>Aktif</span>
+            <strong id="summaryActive">0</strong>
+          </article>
+          <article class="analytic-card">
+            <span>Selesai</span>
+            <strong id="summaryResolved">0</strong>
+          </article>
+          <article class="analytic-card">
+            <span>Rata-Rata Penyelesaian</span>
+            <strong id="summaryAvg">-</strong>
+          </article>
+        </div>
+
+        <div class="analytics-layout">
+          <!-- pie chart-nya pure css conic-gradient, gak pake library -->
+          <section class="chart-panel">
+            <div class="panel-head compact">
+              <div>
+                <p class="section-label">Pie Chart</p>
+                <h3>Rata-Rata Jenis Gangguan</h3>
+              </div>
+            </div>
+            <div class="pie-wrap">
+              <div id="categoryPie" class="pie-chart" aria-label="Pie jenis gangguan"></div>
+              <div id="categoryLegend" class="chart-legend"></div>
+            </div>
+          </section>
+
+          <!-- bar chart OPD sengaja gak di-limit, scroll aja kalo panjang -->
+          <section class="chart-panel">
+            <div class="panel-head compact">
+              <div>
+                <p class="section-label">OPD</p>
+                <h3>OPD Mengalami Gangguan</h3>
+              </div>
+            </div>
+            <div id="opdChart" class="bar-chart"></div>
+          </section>
+        </div>
+
+        <div class="analytics-layout">
+          <!-- tabel laporan masuk vs selesai per tanggal -->
+          <section class="chart-panel">
+            <div class="panel-head compact">
+              <div>
+                <p class="section-label">Tabel</p>
+                <h3>Ringkasan Waktu Penyelesaian</h3>
+              </div>
+            </div>
+            <div id="summaryTable" class="summary-table"></div>
+          </section>
+
+          <!-- top 5 dari kategori+lokasi, bukan dari teks bebas -->
+          <section class="chart-panel">
+            <div class="panel-head compact">
+              <div>
+                <p class="section-label">Top 5</p>
+                <h3>Masalah Paling Sering Muncul</h3>
+              </div>
+            </div>
+            <div id="topTexts" class="top-text-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ini cuma ringkasan tugas per staf, login staf ada di staf.html sendiri -->
+      <section id="staf" class="panel admin-page-panel">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Lapor Teknis</p>
+            <h2>Tim Teknis Penanganan</h2>
+          </div>
+          <button id="staffRefresh" class="secondary-btn" type="button">Refresh</button>
+        </div>
+        <div id="staffList" class="staff-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/laporan/app.js"></script>
+</body>
+</html>

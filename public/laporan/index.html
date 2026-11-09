@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APPAU - Sistem Pelayanan TIK</title>
+  <link rel="icon" type="image/png" href="../images/logo_gowa.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- sidebar doang -- logo + 3 menu ke section di bawah -->
+    <aside class="sidebar" aria-label="Navigasi utama">
+      <a class="brand" href="#lapor">
+        <span class="brand-mark">
+          <img src="../images/logo_gowa.png" alt="Logo Diskominfo-SP Gowa" />
+        </span>
+        <span>
+          <strong>APPAU</strong>
+          <small>Aplikasi Pelayanan Permintaan, Aduan, dan Utilitas TIK</small>
+        </span>
+      </a>
+
+      <nav class="side-nav">
+        <a href="#lapor" class="active">Buat laporan</a>
+        <a href="#lacak">Lacak tiket</a>
+        <a href="#status">Status gangguan</a>
+      </nav>
+    </aside>
+
+    <main class="workspace">
+      <!-- header + angka ringkasan, biar begitu buka langsung keliatan kondisinya gimana -->
+      <header class="workspace-header">
+        <div>
+          <p class="eyebrow">APPAU Diskominfo-SP Gowa</p>
+          <h1>Aplikasi pelayanan permintaan, aduan, dan utilitas TIK.</h1>
+          <p class="header-copy">Laporan jaringan masuk sebagai tiket, dipantau admin, lalu dikonfirmasi kembali ke pelapor.</p>
+        </div>
+        <div class="header-status">
+          <span class="pulse"></span>
+          <span>Live polling</span>
+          <strong id="clock">--:--</strong>
+        </div>
+      </header>
+
+      <section class="metric-grid" aria-label="Ringkasan laporan">
+        <article class="metric">
+          <span>Pending</span>
+          <strong data-stat="open">0</strong>
+        </article>
+        <article class="metric">
+          <span>Dalam pengecekan</span>
+          <strong data-stat="investigating">0</strong>
+        </article>
+        <article class="metric">
+          <span>Diproses</span>
+          <strong data-stat="in_progress">0</strong>
+        </article>
+        <article class="metric">
+          <span>Sisi pengguna</span>
+          <strong data-stat="user_issue">0</strong>
+        </article>
+        <article class="metric">
+          <span>Selesai</span>
+          <strong data-stat="resolved">0</strong>
+        </article>
+      </section>
+
+      <div class="content-grid">
+        <!-- form laporan utama. lokasi ambil dari db rooms buat autocomplete, tapi kalau ga ketemu ttp bisa ngetik manual -->
+        <section id="lapor" class="panel report-panel">
+          <div class="panel-head">
+            <div>
+              <p class="section-label">Form User</p>
+              <h2>Buat Laporan Gangguan</h2>
+            </div>
+          </div>
+
+          <form id="reportForm" class="form" novalidate>
+            <div class="two-cols">
+              <label class="field">
+                <span>Kategori Instansi</span>
+                <select id="roomCategory" name="roomCategory">
+                  <option value="" disabled selected>Semua Kategori</option>
+                </select>
+              </label>
+              <div class="field">
+                <span>Lokasi / OSPD</span>
+                <div class="autocomplete">
+                  <input id="area" name="area" placeholder="Ketik nama ruangan, contoh: Inspektorat" autocomplete="off" required />
+                  <div id="roomList" class="autocomplete-list" hidden></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="two-cols">
+              <label class="field">
+                <span>Nama pelapor / unit</span>
+                <input id="reporter" name="reporter" placeholder="Nama atau unit kerja" required />
+              </label>
+              <label class="field">
+                <span>Nomor WhatsApp / Telepon</span>
+                <input id="contact" name="contact" inputmode="tel" placeholder="0812xxxxxxxx" required />
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Detail Masalah</span>
+              <textarea id="detail" name="detail" rows="5" placeholder="Contoh: WiFi tersambung tetapi internet tidak jalan sejak pukul 09.00. Sudah coba restart perangkat." required></textarea>
+            </label>
+
+            <label class="field">
+              <span>Kategori</span>
+              <select id="category" name="category" required>
+                <option>Gangguan koneksi internet</option>
+                <option>WiFi tidak terhubung</option>
+                <option>Koneksi lambat / tidak stabil</option>
+                <option>Tidak mendapat IP / DHCP</option>
+                <option>Layanan internal tidak bisa diakses</option>
+                <option>Lainnya</option>
+              </select>
+            </label>
+
+            <div class="form-actions">
+              <p id="formMsg" class="form-msg" role="status" aria-live="polite"></p>
+              <button id="submitBtn" class="primary-btn" type="submit">Kirim laporan</button>
+            </div>
+          </form>
+
+          <div id="receipt" class="receipt" hidden>
+            <span>Laporan diterima</span>
+            <strong id="receiptTicket">TIK08082026-001</strong>
+            <p>Notifikasi tanda terima akan dikirim ke WhatsApp jika gateway sudah aktif.</p>
+            <div class="inline-actions">
+              <button id="copyTicket" class="secondary-btn" type="button">Salin kode</button>
+              <button id="newReport" class="secondary-btn" type="button">Buat laporan lagi</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- panel info di samping form -- biar user ga bingung ini nyakup instansi apa aja & alurnya kayak gimana -->
+        <aside class="panel insight-panel">
+          <p class="section-label">Cakupan Data</p>
+          <h2>Ruang layanan mengikuti data SKPD.</h2>
+          <div class="coverage-list" aria-label="Kategori ruangan">
+            <span>Dinas</span>
+            <span>Badan</span>
+            <span>Bagian</span>
+            <span>Kecamatan</span>
+            <span>Asisten</span>
+            <span>Staf Ahli</span>
+          </div>
+          <p class="section-label process-label">Alur Penanganan</p>
+          <ol class="flow-list">
+            <li>
+              <strong>Laporan dibuat</strong>
+              <span>Tiket dan nomor pelapor tersimpan.</span>
+            </li>
+            <li>
+              <strong>Admin memeriksa</strong>
+              <span>Status dan catatan teknis diperbarui.</span>
+            </li>
+            <li>
+              <strong>Pelapor dikonfirmasi</strong>
+              <span>Admin dapat menghubungi lewat WhatsApp.</span>
+            </li>
+          </ol>
+        </aside>
+      </div>
+
+      <!-- buat lacak tiket pake kode yang didapet abis lapor -->
+      <section id="lacak" class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Tracking</p>
+            <h2>Lacak status tiket</h2>
+          </div>
+        </div>
+        <form id="trackForm" class="search-row">
+          <input id="trackInput" placeholder="Masukkan kode tiket, contoh TIK08082026-001" autocomplete="off" />
+          <button class="primary-btn" type="submit">Cari</button>
+        </form>
+        <div id="trackResult" class="result-area"></div>
+      </section>
+
+      <!-- board publik, semua orang bisa liat tiket yg masih aktif tanpa perlu login -->
+      <section id="status" class="panel">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Board</p>
+            <h2>Status gangguan aktif</h2>
+          </div>
+          <button id="refreshBoard" class="secondary-btn" type="button">Refresh</button>
+        </div>
+        <div id="board" class="ticket-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
